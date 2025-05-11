@@ -1,0 +1,4 @@
+{
+  "conventionalCommits.scopes": ["prisma", "team"],
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}

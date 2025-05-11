@@ -14,27 +14,45 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  image     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  image        String?
+  jerseyNumber Int?
+  position     Position?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  TeamMembers TeamMembers[]
-  Teams       Team[]
+  teamMembers TeamMember[]
+  teams       Team[]
+}
+
+enum Position {
+  GK
+  RB
+  CB
+  LB
+  DMF
+  CMF
+  AMF
+  RMF
+  LMF
+  RWF
+  LWF
+  FW
+  SS
 }
 
 model Team {
   id          String   @id @default(cuid())
-  name        String
+  name        String   @unique
   description String?
   image       String?
   createdById String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  TeamMembers TeamMembers[]
+  members TeamMember[]
 
   createdBy User @relation(fields: [createdById], references: [id])
 }
@@ -44,13 +62,19 @@ enum TeamMemberRole {
   MEMBER
 }
 
-model TeamMembers {
-  userId       String
-  teamId       String
-  jerseyNumber Int?
-  role         TeamMemberRole @default(MEMBER)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+enum TeamMemberStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model TeamMember {
+  userId    String
+  teamId    String
+  role      TeamMemberRole   @default(MEMBER)
+  status    TeamMemberStatus @default(PENDING)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 
   user User @relation(fields: [userId], references: [id])
   team Team @relation(fields: [teamId], references: [id])
