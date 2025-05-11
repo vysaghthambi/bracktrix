@@ -31,18 +31,7 @@ export const createTeam = async ({
   return team;
 };
 
-export const cancelInvitation = async (teamId: string, userId: string) => {
-  await prisma.teamMember.delete({
-    where: {
-      userId_teamId: {
-        userId,
-        teamId,
-      },
-    },
-  });
-};
-
-export const updateInvitationStatus = async (
+export const updateRequestStatus = async (
   teamId: string,
   userId: string,
   status: "ACCEPTED" | "REJECTED"

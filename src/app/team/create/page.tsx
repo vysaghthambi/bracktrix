@@ -12,6 +12,7 @@ export default async function CreateTeam() {
   }
 
   const handleSubmit = async (formData: FormData) => {
+    "use server";
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
 

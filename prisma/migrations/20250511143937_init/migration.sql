@@ -5,7 +5,7 @@ CREATE TYPE "Position" AS ENUM ('GK', 'RB', 'CB', 'LB', 'DMF', 'CMF', 'AMF', 'RM
 CREATE TYPE "TeamMemberRole" AS ENUM ('ADMIN', 'MEMBER');
 
 -- CreateEnum
-CREATE TYPE "TeamMemberStatus" AS ENUM ('PENDING', 'ACCEPTED', 'REJECTED');
+CREATE TYPE "TeamMemberStatus" AS ENUM ('REQUESTED', 'ACCEPTED', 'REJECTED');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -39,7 +39,7 @@ CREATE TABLE "TeamMember" (
     "userId" TEXT NOT NULL,
     "teamId" TEXT NOT NULL,
     "role" "TeamMemberRole" NOT NULL DEFAULT 'MEMBER',
-    "status" "TeamMemberStatus" NOT NULL DEFAULT 'PENDING',
+    "status" "TeamMemberStatus" NOT NULL DEFAULT 'REQUESTED',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

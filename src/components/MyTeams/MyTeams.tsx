@@ -1,24 +1,22 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
-import { getServerAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-export default async function MyTeams() {
-  const session = await getServerAuthSession();
-
-  if (!session) {
-    redirect("/");
-  }
-
+export default async function MyTeams({
+  userId,
+}: Readonly<{ userId: string }>) {
   const teams = await prisma.team.findMany({
     where: {
       members: {
         some: {
-          userId: session?.user.id,
+          userId: userId,
           status: "ACCEPTED",
         },
       },
+    },
+    select: {
+      id: true,
+      name: true,
     },
   });
 

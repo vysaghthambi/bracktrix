@@ -1,31 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { revalidatePath } from "next/cache";
 import { TeamMember, User } from "@prisma/client";
+import { RequestStatus } from "@/app/team/[id]/page";
 
-import { cancelInvitation } from "@/actions/team";
-
-type TeamMemberType = TeamMember & {
+export type TeamMemberType = TeamMember & {
   user: Pick<User, "id" | "name">;
 };
 
 type TeamMembersProps = {
   isAdmin: boolean;
-  teamId: string;
   joinedMembers: TeamMemberType[];
-  pendingMembers: TeamMemberType[];
-  rejectedMembers: TeamMemberType[];
+  requestedMembers: TeamMemberType[];
+  handleRequest: (userId: string, status: RequestStatus) => Promise<void>;
 };
 
-type MemberTab = "joined" | "invited";
+type MemberTab = "joined" | "requested";
 
 export default function TeamMembers({
   isAdmin,
-  teamId,
   joinedMembers,
-  pendingMembers,
-  rejectedMembers,
+  requestedMembers,
+  handleRequest,
 }: Readonly<TeamMembersProps>) {
   const [activeTab, setActiveTab] = useState<MemberTab>("joined");
 
@@ -33,17 +29,11 @@ export default function TeamMembers({
     setActiveTab(tab);
   };
 
-  const handleInvitationReject = async (userId: string) => {
-    await cancelInvitation(teamId, userId);
-
-    revalidatePath(`/team/${teamId}`);
-  };
-
   return (
     <div>
       <button onClick={() => handleTabChange("joined")}>Members</button>
       {isAdmin && (
-        <button onClick={() => handleTabChange("invited")}>Invited</button>
+        <button onClick={() => handleTabChange("requested")}>Requests</button>
       )}
 
       {activeTab === "joined" && (
@@ -59,21 +49,19 @@ export default function TeamMembers({
         </div>
       )}
 
-      {activeTab === "invited" && (
+      {activeTab === "requested" && (
         <div>
-          <h2>Invited Members</h2>
+          <h2>Requests</h2>
           <ol>
-            {pendingMembers.map((member) => (
+            {requestedMembers.map((member) => (
               <li key={member.userId}>
-                {member.user.name} - {member.role} - Pending
-                <button onClick={() => handleInvitationReject(member.userId)}>
-                  Cancel
+                {member.user.name} - {member.role}
+                <button onClick={() => handleRequest(member.userId, "approve")}>
+                  Accept
                 </button>
-              </li>
-            ))}
-            {rejectedMembers.map((member) => (
-              <li key={member.userId}>
-                {member.user.name} - {member.role} - Rejected
+                <button onClick={() => handleRequest(member.userId, "reject")}>
+                  Reject
+                </button>
               </li>
             ))}
           </ol>

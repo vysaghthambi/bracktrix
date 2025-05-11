@@ -8,9 +8,10 @@ export default function Header() {
 
   return (
     <header>
-      <Link href={"/team/create"}>Create Team</Link>
       {session ? (
         <div>
+          <Link href={"/team/create"}>Create Team</Link>
+          <Link href={"/team/join"}>Join Team</Link>
           {session?.user?.email}
           <button onClick={() => signOut()}>logout</button>
         </div>

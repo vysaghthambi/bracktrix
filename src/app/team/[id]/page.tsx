@@ -1,9 +1,13 @@
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 import { getServerAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { updateRequestStatus } from "@/actions/team";
 
 import TeamMembers from "@/components/TeamMembers/TeamMembers";
+
+export type RequestStatus = "approve" | "reject";
 
 export default async function TeamPage({
   params,
@@ -49,12 +53,22 @@ export default async function TeamPage({
   const joinedMembers = team.members.filter(
     (member) => member.status === "ACCEPTED"
   );
-  const pendingMembers = team.members.filter(
-    (member) => member.status === "PENDING"
+
+  const requestedMembers = team.members.filter(
+    (member) => member.status === "REQUESTED"
   );
-  const rejectedMembers = team.members.filter(
-    (member) => member.status === "REJECTED"
-  );
+
+  const handleRequest = async (userId: string, status: RequestStatus) => {
+    "use server";
+
+    await updateRequestStatus(
+      teamId,
+      userId,
+      status === "approve" ? "ACCEPTED" : "REJECTED"
+    );
+
+    revalidatePath(`/team/${teamId}`);
+  };
 
   return (
     <div>
@@ -63,10 +77,9 @@ export default async function TeamPage({
       <p>Created by: {team.createdBy.name}</p>
       <TeamMembers
         isAdmin={isAdmin}
-        teamId={teamId}
         joinedMembers={joinedMembers}
-        pendingMembers={pendingMembers}
-        rejectedMembers={rejectedMembers}
+        requestedMembers={requestedMembers}
+        handleRequest={handleRequest}
       />
     </div>
   );
