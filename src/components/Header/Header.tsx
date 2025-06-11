@@ -12,6 +12,7 @@ export default function Header() {
         <div>
           <Link href={"/team/create"}>Create Team</Link>
           <Link href={"/team/join"}>Join Team</Link>
+          <Link href={"/tournament/create"}>Create Tournament</Link>
           {session?.user?.email}
           <button onClick={() => signOut()}>logout</button>
         </div>

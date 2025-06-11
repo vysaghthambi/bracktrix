@@ -5,6 +5,7 @@ import "./globals.css";
 import Header from "@/components/Header/Header";
 import { getServerAuthSession } from "@/lib/auth";
 import AuthProvider from "@/providers/AuthProvider";
+import LocalizationProvider from "@/providers/LocalizationProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,8 +33,10 @@ export default async function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <AuthProvider session={session}>
-          <Header />
-          {children}
+          <LocalizationProvider>
+            <Header />
+            {children}
+          </LocalizationProvider>
         </AuthProvider>
       </body>
     </html>

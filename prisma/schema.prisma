@@ -25,6 +25,7 @@ model User {
 
   teamMembers TeamMember[]
   teams       Team[]
+  tournaments Tournament[]
 }
 
 enum Position {
@@ -52,7 +53,8 @@ model Team {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  members TeamMember[]
+  members         TeamMember[]
+  tournamentTeams TournamentTeam[]
 
   createdBy User @relation(fields: [createdById], references: [id])
 }
@@ -81,4 +83,51 @@ model TeamMember {
 
   @@id(name: "id", fields: [userId, teamId])
   @@unique([userId, teamId])
+}
+
+enum TournamentType {
+  LEAGUE
+  KNOCKOUT
+  GROUP_KNOCKOUT
+}
+
+enum KnockoutFormat {
+  ROUND_OF_16
+  ROUND_OF_8
+  ROUND_OF_4
+}
+
+model Tournament {
+  id              String          @id @default(cuid())
+  name            String          @unique
+  description     String?
+  location        String
+  locationUrl     String
+  startDate       DateTime
+  endDate         DateTime
+  noOfPlayers     Int
+  noOfSubstitutes Int
+  matchDuration   Int
+  type            TournamentType?
+  knockoutFormat  KnockoutFormat?
+  createdById     String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  teams TournamentTeam[]
+
+  createdBy User @relation(fields: [createdById], references: [id])
+}
+
+model TournamentTeam {
+  id           String   @id @default(cuid())
+  tournamentId String
+  teamId       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id])
+  team       Team       @relation(fields: [teamId], references: [id])
+
+  @@unique([tournamentId, teamId])
 }

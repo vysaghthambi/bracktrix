@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 
+import TextField from "@mui/material/TextField";
+
 import { getServerAuthSession } from "@/lib/auth";
 
 import { createTeam } from "@/actions/team";
@@ -29,8 +31,8 @@ export default async function CreateTeam() {
     <div>
       <h1>Create Team</h1>
       <form action={handleSubmit}>
-        <input type="text" name="name" placeholder="Team Name" required />
-        <input type="text" name="description" placeholder="Description" />
+        <TextField type="text" name="name" placeholder="Team Name" required />
+        <TextField type="text" name="description" placeholder="Description" />
         <button type="submit">Create</button>
       </form>
     </div>

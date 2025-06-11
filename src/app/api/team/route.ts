@@ -4,25 +4,33 @@ import { getServerAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
-  const searchTerm = request.nextUrl.searchParams.get("searchTerm") ?? "";
+  const searchParams = request.nextUrl.searchParams;
+
+  const searchTerm = searchParams.get("searchTerm") ?? "";
+  const isUserExcluded = searchParams.get("isExcluded") === "true";
 
   const session = await getServerAuthSession();
 
-  if (!searchTerm) {
-    return new Response(JSON.stringify([]), { status: 200 });
-  }
-
   const teams = await prisma.team.findMany({
     where: {
-      name: {
-        contains: searchTerm,
-        mode: "insensitive",
-      },
-      members: {
-        none: {
-          userId: session?.user.id,
+      ...(searchTerm && {
+        name: {
+          contains: searchTerm,
+          mode: "insensitive",
         },
-      },
+      }),
+      ...(isUserExcluded && {
+        members: {
+          none: {
+            userId: session?.user.id,
+          },
+        },
+      }),
+    },
+    select: {
+      id: true,
+      name: true,
+      description: true,
     },
   });
 
