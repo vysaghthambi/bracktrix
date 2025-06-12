@@ -14,34 +14,35 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(cuid())
+  id           String   @id @default(cuid())
   name         String
-  email        String    @unique
+  email        String   @unique
   image        String?
   jerseyNumber Int?
-  position     Position?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  positionCode String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  teamMembers TeamMember[]
-  teams       Team[]
-  tournaments Tournament[]
+  position Position? @relation(fields: [positionCode], references: [code])
+
+  tournaments    Tournament[]   @relation("TournamentCreator")
+  mvpTournaments Tournament[]   @relation("TournamentMVP")
+  penaltyPlayers PenaltyEvent[] @relation("PenaltyPlayer")
+  penaltyGoalies PenaltyEvent[] @relation("PenaltyGoalie")
+
+  teams              Team[]
+  teamMembers        TeamMember[]
+  playerOfTheMatches Match[]
+  matchLineups       MatchLineup[]
+  matchEvents        MatchEvent[]
 }
 
-enum Position {
-  GK
-  RB
-  CB
-  LB
-  DMF
-  CMF
-  AMF
-  RMF
-  LMF
-  RWF
-  LWF
-  FW
-  SS
+model Position {
+  code  String @id
+  title String
+
+  users        User[]
+  matchLineups MatchLineup[]
 }
 
 model Team {
@@ -53,10 +54,14 @@ model Team {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  members         TeamMember[]
-  tournamentTeams TournamentTeam[]
+  createdBy   User         @relation(fields: [createdById], references: [id])
+  teamMembers TeamMember[]
 
-  createdBy User @relation(fields: [createdById], references: [id])
+  tournamentTeams TournamentTeam[]
+  groupTeams      GroupTeam[]
+  matchLineups    MatchLineup[]
+  matchEvents     MatchEvent[]
+  penaltyEvents   PenaltyEvent[]
 }
 
 enum TeamMemberRole {
@@ -95,32 +100,39 @@ enum KnockoutFormat {
   ROUND_OF_16
   ROUND_OF_8
   ROUND_OF_4
+  ROUND_OF_2
 }
 
 model Tournament {
   id              String          @id @default(cuid())
   name            String          @unique
   description     String?
+  image           String?
   location        String
   locationUrl     String
   startDate       DateTime
   endDate         DateTime
-  noOfPlayers     Int
-  noOfSubstitutes Int
+  playerCount     Int
+  substituteCount Int
   matchDuration   Int
-  type            TournamentType?
+  type            TournamentType
   knockoutFormat  KnockoutFormat?
   createdById     String
+  mvpPlayerId     String?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
-  teams TournamentTeam[]
+  createdBy User  @relation("TournamentCreator", fields: [createdById], references: [id])
+  mvpPlayer User? @relation("TournamentMVP", fields: [mvpPlayerId], references: [id])
 
-  createdBy User @relation(fields: [createdById], references: [id])
+  tournamentTeams TournamentTeam[]
+  groups          Group[]
+  matches         Match[]
+  matchEvents     MatchEvent[]
+  penaltyEvents   PenaltyEvent[]
 }
 
 model TournamentTeam {
-  id           String   @id @default(cuid())
   tournamentId String
   teamId       String
   createdAt    DateTime @default(now())
@@ -129,5 +141,155 @@ model TournamentTeam {
   tournament Tournament @relation(fields: [tournamentId], references: [id])
   team       Team       @relation(fields: [teamId], references: [id])
 
+  @@id(name: "id", fields: [tournamentId, teamId])
   @@unique([tournamentId, teamId])
+}
+
+model Group {
+  id           String   @id @default(cuid())
+  name         String
+  tournamentId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id])
+
+  groupTeams GroupTeam[]
+
+  @@unique([tournamentId, name])
+}
+
+model GroupTeam {
+  groupId   String
+  teamId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  group Group @relation(fields: [groupId], references: [id])
+  team  Team  @relation(fields: [teamId], references: [id])
+
+  @@id(name: "id", fields: [groupId, teamId])
+  @@unique([groupId, teamId])
+}
+
+enum MatchType {
+  GROUP
+  KNOCKOUT
+}
+
+enum MatchStatus {
+  SCHEDULED
+  ONGOING
+  COMPLETED
+}
+
+model Match {
+  id                   String          @id @default(cuid())
+  tournamentId         String
+  groupId              String
+  title                String
+  orderNumber          Int
+  homeTeamId           String
+  awayTeamId           String
+  homeTeamScore        Int
+  awayTeamScore        Int
+  wentToPenalty        Boolean         @default(false)
+  homeTeamPenaltyScore Int?
+  awayTeamPenaltyScore Int?
+  startTime            DateTime
+  duration             Int
+  firstHalfStart       DateTime?
+  secondHalfStart      DateTime?
+  extraTimeStart       DateTime?
+  type                 MatchType
+  knockoutRound        KnockoutFormat?
+  status               MatchStatus
+  playerOfTheMatchId   String
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  tournament       Tournament @relation(fields: [tournamentId], references: [id])
+  playerOfTheMatch User       @relation(fields: [playerOfTheMatchId], references: [id])
+
+  matchLineups MatchLineup[]
+  matchEvents  MatchEvent[]
+  PenaltyEvent PenaltyEvent[]
+}
+
+model MatchLineup {
+  matchId      String
+  playerId     String
+  teamId       String
+  isSubstitute Boolean  @default(false)
+  positionCode String
+  jerseyNumber Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  match    Match    @relation(fields: [matchId], references: [id])
+  player   User     @relation(fields: [playerId], references: [id])
+  team     Team     @relation(fields: [teamId], references: [id])
+  position Position @relation(fields: [positionCode], references: [code])
+
+  @@id(name: "id", fields: [matchId, playerId, teamId])
+  @@unique([matchId, playerId, teamId])
+}
+
+enum MatchEventType {
+  GOAL
+  OWN_GOAL
+  YELLOW_CARD
+  RED_CARD
+}
+
+model GoalType {
+  code  String @id
+  title String
+
+  matchEvents MatchEvent[]
+}
+
+model MatchEvent {
+  id           String         @id @default(cuid())
+  matchId      String
+  playerId     String
+  teamId       String
+  tournamentId String
+  minute       Int
+  eventType    MatchEventType
+  goalTypeCode String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  match      Match      @relation(fields: [matchId], references: [id])
+  player     User       @relation(fields: [playerId], references: [id])
+  team       Team       @relation(fields: [teamId], references: [id])
+  tournament Tournament @relation(fields: [tournamentId], references: [id])
+  goalType   GoalType?  @relation(fields: [goalTypeCode], references: [code])
+}
+
+enum PenaltyStatus {
+  SCORED
+  MISSED
+  SAVED
+}
+
+model PenaltyEvent {
+  tournamentId String
+  matchId      String
+  playerId     String
+  teamId       String
+  goalieId     String
+  status       PenaltyStatus
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id])
+  match      Match      @relation(fields: [matchId], references: [id])
+  team       Team       @relation(fields: [teamId], references: [id])
+  player     User       @relation("PenaltyPlayer", fields: [playerId], references: [id])
+  goalie     User       @relation("PenaltyGoalie", fields: [goalieId], references: [id])
+
+  @@id(name: "id", fields: [matchId, playerId, teamId])
+  @@unique([matchId, playerId, teamId])
 }
