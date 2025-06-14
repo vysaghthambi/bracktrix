@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
 
@@ -15,17 +15,13 @@ export default async function TournamentPage({
     return <div>Tournament not found</div>;
   }
 
-  return (
-    <div>
-      <h1>{tournament.name}</h1>
-      <p>{tournament.description}</p>
-      <p>{tournament.location}</p>
-      <p>{tournament.locationUrl}</p>
-      <p>Players Count: {tournament.playerCount}</p>
-      <p>Substitutes Count: {tournament.substituteCount}</p>
-      <p>Duration: {tournament.matchDuration} min</p>
-      <p>Start Date: {dayjs(tournament.startDate).format("DD-MM-YYYY")}</p>
-      <p>End Date: {dayjs(tournament.endDate).format("DD-MM-YYYY")}</p>
-    </div>
-  );
+  if (tournament.type === "GROUP_KNOCKOUT") {
+    redirect(`/tournament/${tournament.id}/groups`);
+  } else if (tournament.type === "KNOCKOUT") {
+    redirect(`/tournament/${tournament.id}/knockout`);
+  } else if (tournament.type === "LEAGUE") {
+    redirect(`/tournament/${tournament.id}/league`);
+  }
+
+  return null;
 }

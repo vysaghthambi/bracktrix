@@ -62,6 +62,8 @@ model Team {
   matchLineups    MatchLineup[]
   matchEvents     MatchEvent[]
   penaltyEvents   PenaltyEvent[]
+  homeMatches     Match[]          @relation("HomeTeam")
+  awayMatches     Match[]          @relation("AwayTeam")
 }
 
 enum TeamMemberRole {
@@ -154,7 +156,8 @@ model Group {
 
   tournament Tournament @relation(fields: [tournamentId], references: [id])
 
-  groupTeams GroupTeam[]
+  groupTeams   GroupTeam[]
+  groupMatches Match[]
 
   @@unique([tournamentId, name])
 }
@@ -210,6 +213,9 @@ model Match {
 
   tournament       Tournament @relation(fields: [tournamentId], references: [id])
   playerOfTheMatch User       @relation(fields: [playerOfTheMatchId], references: [id])
+  homeTeam         Team       @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeam         Team       @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  group            Group      @relation(fields: [groupId], references: [id])
 
   matchLineups MatchLineup[]
   matchEvents  MatchEvent[]
