@@ -28,7 +28,13 @@ export default async function TeamPage({
           image: true,
         },
       },
-      members: {
+      teamMembers: {
+        where: {
+          OR: [
+            { status: "ACCEPTED" },
+            { status: "REQUESTED" },
+          ]
+        },
         include: {
           user: {
             select: {
@@ -47,14 +53,14 @@ export default async function TeamPage({
   }
 
   const isAdmin =
-    team.members.find((member) => member.userId === session.user.id)?.role ===
+    team.teamMembers.find((member) => member.userId === session.user.id)?.role ===
     "ADMIN";
 
-  const joinedMembers = team.members.filter(
+  const joinedMembers = team.teamMembers.filter(
     (member) => member.status === "ACCEPTED"
   );
 
-  const requestedMembers = team.members.filter(
+  const requestedMembers = team.teamMembers.filter(
     (member) => member.status === "REQUESTED"
   );
 

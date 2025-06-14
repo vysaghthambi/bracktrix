@@ -18,7 +18,7 @@ export const createTeam = async ({
       name,
       description,
       createdById: createdBy,
-      members: {
+      teamMembers: {
         create: {
           userId: createdBy,
           role: "ADMIN",

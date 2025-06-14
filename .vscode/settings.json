@@ -1,4 +1,4 @@
 {
-  "conventionalCommits.scopes": ["prisma", "team", "tournament"],
+  "conventionalCommits.scopes": ["prisma", "team", "tournament", "profile"],
   "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { getServerAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -11,7 +11,7 @@ export async function POST(
   const session = await getServerAuthSession();
 
   if (!session) {
-    return new Response("Unauthorized", { status: 401 });
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   const teamMember = await prisma.teamMember.findFirst({
@@ -22,7 +22,7 @@ export async function POST(
   });
 
   if (teamMember) {
-    return new Response("Already requested", { status: 400 });
+    return NextResponse.json({ message: "Already requested" }, { status: 400 });
   }
 
   await prisma.teamMember.create({
@@ -33,5 +33,8 @@ export async function POST(
     },
   });
 
-  return new Response("Request sent successfully", { status: 200 });
+  return NextResponse.json(
+    { message: "Request sent successfully" },
+    { status: 200 }
+  );
 }
