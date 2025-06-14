@@ -1,7 +1,7 @@
 import { getServerAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { TournamentCreatePayload } from "@/types/tournament";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   const body: TournamentCreatePayload = await request.json();
@@ -19,15 +19,15 @@ export async function POST(request: NextRequest) {
       description: body.description,
       location: body.location,
       locationUrl: body.locationUrl,
-      noOfPlayers: body.playersCount,
-      noOfSubstitutes: body.substitutesCount,
+      playerCount: body.playersCount,
+      substituteCount: body.substitutesCount,
       matchDuration: body.duration,
       type: body.tournamentType,
       knockoutFormat: body.knockoutFormat,
       createdById: session?.user.id,
       startDate: body.startDate,
       endDate: body.endDate,
-      teams: {
+      tournamentTeams: {
         createMany: {
           data: body.teams.map((teamId) => ({
             teamId: teamId,
@@ -40,5 +40,5 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  return new Response(JSON.stringify({ id: tournament.id }), { status: 200 });
+  return NextResponse.json({ id: tournament.id }, { status: 200 });
 }

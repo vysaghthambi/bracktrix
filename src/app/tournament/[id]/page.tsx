@@ -21,8 +21,8 @@ export default async function TournamentPage({
       <p>{tournament.description}</p>
       <p>{tournament.location}</p>
       <p>{tournament.locationUrl}</p>
-      <p>Players Count: {tournament.noOfPlayers}</p>
-      <p>Substitutes Count: {tournament.noOfSubstitutes}</p>
+      <p>Players Count: {tournament.playerCount}</p>
+      <p>Substitutes Count: {tournament.substituteCount}</p>
       <p>Duration: {tournament.matchDuration} min</p>
       <p>Start Date: {dayjs(tournament.startDate).format("DD-MM-YYYY")}</p>
       <p>End Date: {dayjs(tournament.endDate).format("DD-MM-YYYY")}</p>

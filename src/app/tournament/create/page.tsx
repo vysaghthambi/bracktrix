@@ -74,62 +74,83 @@ export default function CreateTournament() {
           <TextFieldFormInput
             type="text"
             name="name"
+            label="Tournament Name"
             placeholder="Tournament Name"
             required
           />
           <TextFieldFormInput
             type="text"
             name="description"
+            label="Description"
             placeholder="Description"
           />
           <TextFieldFormInput
             type="text"
             name="location"
+            label="Location"
             placeholder="Location"
+            required
           />
           <TextFieldFormInput
             type="text"
             name="locationUrl"
+            label="Location URL"
             placeholder="Location URL"
+            required
           />
           <TextFieldFormInput
             type="number"
             name="playersCount"
+            label="Players Count"
             placeholder="Players Count"
+            required
           />
           <TextFieldFormInput
-            type="text"
+            type="number"
             name="substitutesCount"
+            label="Substitutes Count"
             placeholder="Substitutes Count"
+            required
           />
           <TextFieldFormInput
-            type="text"
+            type="number"
             name="duration"
+            label="Match Duration (min)"
             placeholder="Match Duration (min)"
+            required
           />
-          <DatePickerFormInput name="startDate" />
-          <DatePickerFormInput name="endDate" />
+          <DatePickerFormInput name="startDate" label="Start Date" required />
+          <DatePickerFormInput name="endDate" label="End Date" required />
           <AutocompleteFormInput
             name="tournamentType"
+            label="Tournament Type"
             options={tournamentTypes ?? []}
             getOptionLabel={(option) => option.label}
             isOptionEqualToValue={(option, value) => option.value === value.value}
+            required
+            fullWidth
           />
-          {selectedTournamentType?.value === "KNOCKOUT" || selectedTournamentType?.value === "GROUP_KNOCKOUT" && (
+          {(selectedTournamentType?.value === "KNOCKOUT" || selectedTournamentType?.value === "GROUP_KNOCKOUT") && (
             <AutocompleteFormInput
               name="knockoutFormat"
+              label="Knockout Format"
               options={knockoutFormats ?? []}
               getOptionLabel={(option) => option.label}
               isOptionEqualToValue={(option, value) => option.value === value.value}
+              required
+              fullWidth
             />
           )}
           <AutocompleteFormInput
             name="teams"
             multiple
+            label="Teams"
             options={teams ?? []}
             loading={!teams}
             getOptionLabel={(option) => option.name}
             isOptionEqualToValue={(option, value) => option.id === value.id}
+            required
+            fullWidth
           />
           <button type="submit">Create</button>
         </form>
