@@ -7,7 +7,7 @@ export default async function MyTeams({
 }: Readonly<{ userId: string }>) {
   const teams = await prisma.team.findMany({
     where: {
-      members: {
+      teamMembers: {
         some: {
           userId: userId,
           status: "ACCEPTED",
