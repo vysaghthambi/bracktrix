@@ -151,6 +151,7 @@ model Group {
   id           String   @id @default(cuid())
   name         String
   tournamentId String
+  orderNumber  Int
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

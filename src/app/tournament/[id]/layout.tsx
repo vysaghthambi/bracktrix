@@ -5,10 +5,10 @@ import { prisma } from "@/lib/prisma";
 export default async function TournamentLayout({
   children,
   params,
-}: {
+}: Readonly<{
   children: React.ReactNode;
   params: Promise<{ id: string }>;
-}) {
+}>) {
   const tournamentId = (await params).id;
   const tournament = await prisma.tournament.findUnique({
     where: { id: tournamentId },
