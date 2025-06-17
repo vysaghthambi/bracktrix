@@ -33,7 +33,7 @@ export default function DateTimePickerFormInput(
       onChange={(value) => onChange(value?.toISOString())}
       loading={loading}
       inputRef={ref}
-      format="DD-MM-YYYY HH:mm a"
+      format="DD-MM-YYYY hh:mm a"
       slotProps={{
         textField: {
           ...textFieldProps,

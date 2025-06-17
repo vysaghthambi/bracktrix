@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { prisma } from "@/lib/prisma";
 
 type MatchesProps = {
@@ -39,7 +41,14 @@ export default async function Matches({
       <div>
         {matches.map((match) => (
           <div key={match.id}>
-            {match.homeTeam.name} vs {match.awayTeam.name}
+            <div>
+              {match.homeTeam.name} vs {match.awayTeam.name}
+            </div>
+            <Link
+              href={`/tournament/${tournamentId}/groups/match/${match.id}/edit`}
+            >
+              Edit
+            </Link>
           </div>
         ))}
       </div>

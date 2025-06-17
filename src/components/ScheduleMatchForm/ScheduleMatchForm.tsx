@@ -22,12 +22,14 @@ type ScheduleMatchFormProps = {
   defaultValues: MatchSchemaType;
   groups: GroupType[];
   tournamentId: string;
+  matchId?: string;
 };
 
 export default function ScheduleMatchForm({
   defaultValues,
   groups,
   tournamentId,
+  matchId,
 }: Readonly<ScheduleMatchFormProps>) {
   const router = useRouter();
 
@@ -64,15 +66,27 @@ export default function ScheduleMatchForm({
       groupId: data.group?.id,
     };
 
-    await axios
-      .post(`/api/tournament/${tournamentId}/match`, payload)
-      .then(() => {
-        router.push(`/tournament/${tournamentId}/groups`);
-      })
-      .catch((error) => {
-        console.error(error);
-        throw error;
-      });
+    if (matchId) {
+      await axios
+        .put(`/api/tournament/${tournamentId}/match/${matchId}`, payload)
+        .then(() => {
+          router.push(`/tournament/${tournamentId}/groups`);
+        })
+        .catch((error) => {
+          console.error(error);
+          throw error;
+        });
+    } else {
+      await axios
+        .post(`/api/tournament/${tournamentId}/match`, payload)
+        .then(() => {
+          router.push(`/tournament/${tournamentId}/groups`);
+        })
+        .catch((error) => {
+          console.error(error);
+          throw error;
+        });
+    }
   };
 
   const onError = (error: FieldErrors<MatchSchemaType>) => {
