@@ -22,7 +22,7 @@ export default async function GroupTable({
       where: {
         tournamentId,
         groupId,
-        type: "GROUP",
+        stage: "GROUP",
         status: "COMPLETED",
       },
     }),

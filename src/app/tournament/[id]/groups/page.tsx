@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { prisma } from "@/lib/prisma";
 import GroupTable from "@/components/GroupTable/GroupTable";
+import Matches from "@/components/Matches/Matches";
 
 export default async function GroupsPage({
   params,
@@ -39,6 +40,11 @@ export default async function GroupsPage({
           </div>
         ))}
       </div>
+
+      <Link href={`/tournament/${tournamentId}/groups/match/schedule`}>
+        Schedule Match
+      </Link>
+      <Matches tournamentId={tournamentId} />
     </div>
   );
 }

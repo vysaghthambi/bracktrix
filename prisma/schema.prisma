@@ -176,7 +176,7 @@ model GroupTeam {
   @@unique([groupId, teamId])
 }
 
-enum MatchType {
+enum MatchStage {
   GROUP
   KNOCKOUT
 }
@@ -192,28 +192,28 @@ model Match {
   tournamentId         String
   groupId              String
   title                String
-  orderNumber          Int
+  matchNumber          Int
   homeTeamId           String
   awayTeamId           String
-  homeTeamScore        Int
-  awayTeamScore        Int
+  homeTeamScore        Int             @default(0)
+  awayTeamScore        Int             @default(0)
   wentToPenalty        Boolean         @default(false)
-  homeTeamPenaltyScore Int?
-  awayTeamPenaltyScore Int?
+  homeTeamPenaltyScore Int             @default(0)
+  awayTeamPenaltyScore Int             @default(0)
   startTime            DateTime
   duration             Int
   firstHalfStart       DateTime?
   secondHalfStart      DateTime?
   extraTimeStart       DateTime?
-  type                 MatchType
+  stage                MatchStage
   knockoutRound        KnockoutFormat?
   status               MatchStatus
-  playerOfTheMatchId   String
+  playerOfTheMatchId   String?
   createdAt            DateTime        @default(now())
   updatedAt            DateTime        @updatedAt
 
   tournament       Tournament @relation(fields: [tournamentId], references: [id])
-  playerOfTheMatch User       @relation(fields: [playerOfTheMatchId], references: [id])
+  playerOfTheMatch User?      @relation(fields: [playerOfTheMatchId], references: [id])
   homeTeam         Team       @relation("HomeTeam", fields: [homeTeamId], references: [id])
   awayTeam         Team       @relation("AwayTeam", fields: [awayTeamId], references: [id])
   group            Group      @relation(fields: [groupId], references: [id])
