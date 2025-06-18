@@ -44,7 +44,7 @@ export default async function GroupsPage({
       <Link href={`/tournament/${tournamentId}/groups/match/schedule`}>
         Schedule Match
       </Link>
-      <Matches tournamentId={tournamentId} />
+      <Matches tournamentId={tournamentId} stage="GROUP" />
     </div>
   );
 }

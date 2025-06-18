@@ -1,28 +1,25 @@
 import dayjs from "dayjs";
+import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
-import ScheduleMatchForm from "@/components/ScheduleMatchForm/ScheduleMatchForm";
 import { MatchSchemaType } from "@/schema/match";
+import ScheduleMatchForm from "@/components/ScheduleMatchForm/ScheduleMatchForm";
 
-export default async function ScheduleMatchPage({
+export default async function KnockoutMatchSchedulePage({
   params,
 }: Readonly<{ params: Promise<{ id: string }> }>) {
-  const tournamentId = (await params).id;
+  const { id: tournamentId } = await params;
 
-  const [groups, matchCount, tournament] = await Promise.all([
-    prisma.group.findMany({
+  const [tournamentTeams, matchCount, tournament] = await Promise.all([
+    prisma.tournamentTeam.findMany({
       where: {
         tournamentId: tournamentId,
       },
       include: {
-        groupTeams: {
+        team: {
           select: {
-            team: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
+            id: true,
+            name: true,
           },
         },
       },
@@ -30,7 +27,7 @@ export default async function ScheduleMatchPage({
     prisma.match.count({
       where: {
         tournamentId: tournamentId,
-        stage: "GROUP",
+        stage: "KNOCKOUT",
       },
     }),
     prisma.tournament.findUnique({
@@ -44,25 +41,33 @@ export default async function ScheduleMatchPage({
     }),
   ]);
 
+  if (!tournament) {
+    notFound();
+  }
+
+  const teams = tournamentTeams.map((tournamentTeam) => ({
+    id: tournamentTeam.team.id,
+    name: tournamentTeam.team.name,
+  }));
+
   const defaultValues: MatchSchemaType = {
-    isGroupMatch: true,
+    isGroupMatch: false,
     matchNumber: matchCount + 1,
     title: `Match ${matchCount + 1}`,
-    group: null!,
     homeTeam: null!,
     awayTeam: null!,
     startTime: dayjs(tournament?.startDate).toISOString(),
-    duration: tournament?.matchDuration ?? 0,
+    duration: tournament?.matchDuration,
+    group: null!,
     knockoutLevel: null!,
   };
 
   return (
     <div>
-      Schedule Match
       <ScheduleMatchForm
         defaultValues={defaultValues}
-        groups={groups}
         tournamentId={tournamentId}
+        teams={teams}
       />
     </div>
   );

@@ -20,6 +20,7 @@ export async function PUT(
       awayTeamId: body.awayTeamId,
       startTime: body.startTime,
       duration: body.duration,
+      knockoutLevel: body.knockoutLevel,
     },
   });
 

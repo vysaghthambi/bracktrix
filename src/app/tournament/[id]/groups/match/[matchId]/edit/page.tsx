@@ -56,6 +56,7 @@ export default async function EditMatchPage({
   const group = groups.find((group) => group.id === match.groupId);
 
   const defaultValues: MatchSchemaType = {
+    isGroupMatch: true,
     matchNumber: match.matchNumber ?? 0,
     title: match.title ?? "",
     group: group ?? null!,
@@ -63,6 +64,7 @@ export default async function EditMatchPage({
     awayTeam: match.awayTeam ?? null,
     startTime: dayjs(match.startTime).toISOString(),
     duration: match.duration ?? 0,
+    knockoutLevel: null!,
   };
 
   return (

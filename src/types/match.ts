@@ -1,3 +1,5 @@
+import { KnockoutLevel } from "@prisma/client";
+
 export type MatchCreatePayload = {
   matchNumber: number;
   title: string;
@@ -6,4 +8,5 @@ export type MatchCreatePayload = {
   startTime: string;
   duration: number;
   groupId?: string;
+  knockoutLevel?: KnockoutLevel;
 };

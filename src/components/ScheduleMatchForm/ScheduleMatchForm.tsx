@@ -10,7 +10,7 @@ import { FieldErrors, FormProvider, useForm } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 
 import { MatchCreatePayload } from "@/types/match";
-import { matchSchema, MatchSchemaType } from "@/schema/match";
+import { knockoutLevels, matchSchema, MatchSchemaType } from "@/schema/match";
 
 import TextFieldFormInput from "../FormInputs/TextFieldFormInput/TextFieldFormInput";
 import AutocompleteFormInput from "../FormInputs/AutocompleteFormInput/AutocompleteFormInput";
@@ -20,7 +20,8 @@ type GroupType = Group & { groupTeams: { team: Pick<Team, "id" | "name"> }[] };
 
 type ScheduleMatchFormProps = {
   defaultValues: MatchSchemaType;
-  groups: GroupType[];
+  groups?: GroupType[];
+  teams?: Pick<Team, "id" | "name">[];
   tournamentId: string;
   matchId?: string;
 };
@@ -28,6 +29,7 @@ type ScheduleMatchFormProps = {
 export default function ScheduleMatchForm({
   defaultValues,
   groups,
+  teams,
   tournamentId,
   matchId,
 }: Readonly<ScheduleMatchFormProps>) {
@@ -41,8 +43,11 @@ export default function ScheduleMatchForm({
   const { watch, resetField } = methods;
 
   const selectedGroup = watch("group");
+  const isGroupMatch = watch("isGroupMatch");
 
   const teamOptions = useMemo(() => {
+    if (teams) return teams;
+
     resetField("homeTeam");
     resetField("awayTeam");
 
@@ -50,7 +55,7 @@ export default function ScheduleMatchForm({
 
     return (
       groups
-        .find((group) => group.id === selectedGroup.id)
+        ?.find((group) => group.id === selectedGroup.id)
         ?.groupTeams.map((groupTeam) => groupTeam.team) ?? []
     );
   }, [selectedGroup]);
@@ -64,14 +69,12 @@ export default function ScheduleMatchForm({
       startTime: data.startTime,
       duration: data.duration,
       groupId: data.group?.id,
+      knockoutLevel: data.knockoutLevel?.id,
     };
 
     if (matchId) {
       await axios
         .put(`/api/tournament/${tournamentId}/match/${matchId}`, payload)
-        .then(() => {
-          router.push(`/tournament/${tournamentId}/groups`);
-        })
         .catch((error) => {
           console.error(error);
           throw error;
@@ -79,13 +82,16 @@ export default function ScheduleMatchForm({
     } else {
       await axios
         .post(`/api/tournament/${tournamentId}/match`, payload)
-        .then(() => {
-          router.push(`/tournament/${tournamentId}/groups`);
-        })
         .catch((error) => {
           console.error(error);
           throw error;
         });
+    }
+
+    if (data.isGroupMatch) {
+      router.push(`/tournament/${tournamentId}/groups`);
+    } else {
+      router.push(`/tournament/${tournamentId}/knockout`);
     }
   };
 
@@ -96,14 +102,16 @@ export default function ScheduleMatchForm({
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit, onError)}>
-        <AutocompleteFormInput
-          name="group"
-          label="Group"
-          options={groups}
-          getOptionLabel={(option) => option.name}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          renderInput={(params) => <TextField {...params} label="Group" />}
-        />
+        {isGroupMatch && groups && (
+          <AutocompleteFormInput
+            name="group"
+            label="Group"
+            options={groups}
+            getOptionLabel={(option) => option.name}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            renderInput={(params) => <TextField {...params} label="Group" />}
+          />
+        )}
         <TextFieldFormInput name="matchNumber" label="Match Number" />
         <TextFieldFormInput name="title" label="Title" />
         <AutocompleteFormInput
@@ -124,6 +132,16 @@ export default function ScheduleMatchForm({
         />
         <DateTimePickerFormInput name="startTime" label="Start Time" />
         <TextFieldFormInput name="duration" label="Duration (minutes)" />
+        {!isGroupMatch && (
+          <AutocompleteFormInput
+            name="knockoutLevel"
+            label="Knockout Level"
+            options={knockoutLevels}
+            getOptionLabel={(option) => option.name}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            fullWidth
+          />
+        )}
         <button type="submit">Submit</button>
       </form>
     </FormProvider>

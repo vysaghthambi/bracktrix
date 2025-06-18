@@ -13,7 +13,7 @@ export async function POST(
   const match = await prisma.match.create({
     data: {
       tournamentId,
-      groupId: body.groupId ?? "",
+      groupId: body.groupId,
       matchNumber: body.matchNumber,
       title: body.title,
       homeTeamId: body.homeTeamId,
@@ -22,6 +22,7 @@ export async function POST(
       duration: body.duration,
       stage: body.groupId ? "GROUP" : "KNOCKOUT",
       status: "SCHEDULED",
+      knockoutLevel: body.knockoutLevel,
     },
   });
 

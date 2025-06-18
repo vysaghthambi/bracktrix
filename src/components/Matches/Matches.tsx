@@ -1,18 +1,21 @@
 import Link from "next/link";
+import { MatchStage } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 
 type MatchesProps = {
   tournamentId: string;
+  stage: MatchStage;
 };
 
 export default async function Matches({
   tournamentId,
+  stage,
 }: Readonly<MatchesProps>) {
   const matches = await prisma.match.findMany({
     where: {
       tournamentId: tournamentId,
-      stage: "GROUP",
+      stage: stage,
     },
     include: {
       homeTeam: {
@@ -45,7 +48,11 @@ export default async function Matches({
               {match.homeTeam.name} vs {match.awayTeam.name}
             </div>
             <Link
-              href={`/tournament/${tournamentId}/groups/match/${match.id}/edit`}
+              href={
+                stage === "GROUP"
+                  ? `/tournament/${tournamentId}/groups/match/${match.id}/edit`
+                  : `/tournament/${tournamentId}/knockout/match/${match.id}/edit`
+              }
             >
               Edit
             </Link>
