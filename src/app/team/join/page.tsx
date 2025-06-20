@@ -41,7 +41,7 @@ export default function JoinTeam() {
       const response = await axios.get<Team[]>(
         `/api/team?searchTerm=${searchTerm}&isUserExcluded=true`
       );
-      console.log(response);
+
       setTeams(response.data);
     };
 

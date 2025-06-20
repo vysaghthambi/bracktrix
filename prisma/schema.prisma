@@ -228,6 +228,7 @@ model MatchLineup {
   playerId     String
   teamId       String
   isSubstitute Boolean  @default(false)
+  name         String
   positionCode String
   jerseyNumber Int
   createdAt    DateTime @default(now())

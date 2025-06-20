@@ -44,9 +44,9 @@ export default async function Matches({
       <div>
         {matches.map((match) => (
           <div key={match.id}>
-            <div>
+            <Link href={`/match/${match.id}`}>
               {match.homeTeam.name} vs {match.awayTeam.name}
-            </div>
+            </Link>
             <Link
               href={
                 stage === "GROUP"

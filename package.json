@@ -24,6 +24,7 @@
     "next-auth": "^4.24.11",
     "notistack": "^3.0.2",
     "react": "^19.0.0",
+    "react-aria": "^3.41.1",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.3",
     "yup": "^1.6.1"
