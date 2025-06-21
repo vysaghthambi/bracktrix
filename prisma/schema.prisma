@@ -34,7 +34,8 @@ model User {
   teamMembers        TeamMember[]
   playerOfTheMatches Match[]
   matchLineups       MatchLineup[]
-  matchEvents        MatchEvent[]
+  matchEvents        MatchEvent[]  @relation("MatchEvent")
+  assistPlayers      MatchEvent[]  @relation("AssistPlayer")
 }
 
 model Position {
@@ -188,29 +189,34 @@ enum MatchStatus {
 }
 
 model Match {
-  id                   String         @id @default(cuid())
-  tournamentId         String
-  groupId              String?
-  title                String
-  matchNumber          Int
-  homeTeamId           String
-  awayTeamId           String
-  homeTeamScore        Int            @default(0)
-  awayTeamScore        Int            @default(0)
-  wentToPenalty        Boolean        @default(false)
-  homeTeamPenaltyScore Int            @default(0)
-  awayTeamPenaltyScore Int            @default(0)
-  startTime            DateTime
-  duration             Int
-  firstHalfStart       DateTime?
-  secondHalfStart      DateTime?
-  extraTimeStart       DateTime?
-  stage                MatchStage
-  knockoutLevel        KnockoutLevel?
-  status               MatchStatus
-  playerOfTheMatchId   String?
-  createdAt            DateTime       @default(now())
-  updatedAt            DateTime       @updatedAt
+  id                     String         @id @default(cuid())
+  tournamentId           String
+  groupId                String?
+  title                  String
+  matchNumber            Int
+  homeTeamId             String
+  awayTeamId             String
+  homeTeamScore          Int            @default(0)
+  awayTeamScore          Int            @default(0)
+  wentToPenalty          Boolean        @default(false)
+  homeTeamPenaltyScore   Int            @default(0)
+  awayTeamPenaltyScore   Int            @default(0)
+  startTime              DateTime
+  duration               Int
+  firstHalfStartAt       DateTime?
+  firstHalfEndAt         DateTime?
+  secondHalfStartAt      DateTime?
+  secondHalfEndAt        DateTime?
+  extraFirstHalfStartAt  DateTime?
+  extraFirstHalfEndAt    DateTime?
+  extraSecondHalfStartAt DateTime?
+  extraSecondHalfEndAt   DateTime?
+  stage                  MatchStage
+  knockoutLevel          KnockoutLevel?
+  status                 MatchStatus
+  playerOfTheMatchId     String?
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
 
   tournament       Tournament @relation(fields: [tournamentId], references: [id])
   playerOfTheMatch User?      @relation(fields: [playerOfTheMatchId], references: [id])
@@ -258,22 +264,24 @@ model GoalType {
 }
 
 model MatchEvent {
-  id           String         @id @default(cuid())
-  matchId      String
-  playerId     String
-  teamId       String
-  tournamentId String
-  minute       Int
-  eventType    MatchEventType
-  goalTypeCode String?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id             String         @id @default(cuid())
+  matchId        String
+  playerId       String
+  assistPlayerId String?
+  teamId         String
+  tournamentId   String
+  minute         Int
+  eventType      MatchEventType
+  goalTypeCode   String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
-  match      Match      @relation(fields: [matchId], references: [id])
-  player     User       @relation(fields: [playerId], references: [id])
-  team       Team       @relation(fields: [teamId], references: [id])
-  tournament Tournament @relation(fields: [tournamentId], references: [id])
-  goalType   GoalType?  @relation(fields: [goalTypeCode], references: [code])
+  match        Match      @relation(fields: [matchId], references: [id])
+  player       User       @relation("MatchEvent", fields: [playerId], references: [id])
+  assistPlayer User?      @relation("AssistPlayer", fields: [assistPlayerId], references: [id])
+  team         Team       @relation(fields: [teamId], references: [id])
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  goalType     GoalType?  @relation(fields: [goalTypeCode], references: [code])
 }
 
 enum PenaltyStatus {

@@ -45,6 +45,7 @@ export default async function MatchPage({
       <div>{dayjs(match.startTime).format("DD/MM/YYYY HH:mm")}</div>
 
       <Link href={`/match/${matchId}/squad`}>Update Squad</Link>
+      <Link href={`/match/${matchId}/score`}>Update Score</Link>
     </div>
   );
 }
