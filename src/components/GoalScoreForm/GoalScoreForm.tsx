@@ -9,20 +9,26 @@ import TextFieldFormInput from "../FormInputs/TextFieldFormInput/TextFieldFormIn
 import AutocompleteFormInput from "../FormInputs/AutocompleteFormInput/AutocompleteFormInput";
 import SwitchFormInput from "../FormInputs/SwitchFormInput/SwitchFormInput";
 
+export type SubmitContext = {
+  matchId: string;
+  tournamentId: string | null;
+  isHomeTeam: boolean | null;
+  eventId: string | null;
+};
+
 type GoalScoreFormProps = {
   defaultValues: GoalScoreSchemaType;
   scoredTeamLineup: MatchLineup[];
   concededTeamLineup: MatchLineup[];
   goalTypes: GoalType[];
   matchId: string;
-  tournamentId: string;
-  isHomeTeam: boolean;
+  eventId?: string;
+  tournamentId?: string;
+  isHomeTeam?: boolean;
   onSubmit: (
     data: GoalScoreSchemaType,
-    matchId: string,
-    tournamentId: string,
-    isHomeTeam: boolean
-  ) => void;
+    context: SubmitContext
+  ) => Promise<void>;
 };
 
 export default function GoalScoreForm({
@@ -32,6 +38,7 @@ export default function GoalScoreForm({
   goalTypes,
   matchId,
   tournamentId,
+  eventId,
   isHomeTeam,
   onSubmit,
 }: Readonly<GoalScoreFormProps>) {
@@ -46,8 +53,13 @@ export default function GoalScoreForm({
 
   const playerOptions = isOwnGoal ? concededTeamLineup : scoredTeamLineup;
 
-  const handleFormSubmit = (data: GoalScoreSchemaType) => {
-    onSubmit(data, matchId, tournamentId, isHomeTeam);
+  const handleFormSubmit = async (data: GoalScoreSchemaType) => {
+    await onSubmit(data, {
+      matchId,
+      tournamentId: tournamentId ?? null,
+      isHomeTeam: isHomeTeam ?? null,
+      eventId: eventId ?? null,
+    });
   };
 
   const onError = (errors: FieldErrors<GoalScoreSchemaType>) => {

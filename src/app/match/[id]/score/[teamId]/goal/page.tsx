@@ -3,7 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentTime } from "@/utils/getMatchStatus";
 import { GoalScoreSchemaType } from "@/schema/matchEvent";
-import GoalScoreForm from "@/components/GoalScoreForm/GoalScoreForm";
+import GoalScoreForm, {
+  SubmitContext,
+} from "@/components/GoalScoreForm/GoalScoreForm";
 
 export default async function GoalPage({
   params,
@@ -47,11 +49,13 @@ export default async function GoalPage({
 
   const handleSubmit = async (
     data: GoalScoreSchemaType,
-    matchId: string,
-    tournamentId: string,
-    isHomeTeam: boolean
+    context: SubmitContext
   ) => {
     "use server";
+
+    if (!context.matchId || !context.tournamentId) {
+      throw new Error("Match ID and tournament ID are required");
+    }
 
     try {
       await prisma
@@ -60,7 +64,7 @@ export default async function GoalPage({
             data: {
               matchId,
               teamId: data.player.teamId,
-              tournamentId,
+              tournamentId: context.tournamentId,
               eventType: data.isOwnGoal ? "OWN_GOAL" : "GOAL",
               minute: data.minute,
               playerId: data.player.playerId,

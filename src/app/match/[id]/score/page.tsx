@@ -2,9 +2,10 @@ import dayjs from "dayjs";
 import { notFound } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
-import MatchScoreCard from "@/components/MatchScoreCard/MatchScoreCard";
 import { prisma } from "@/lib/prisma";
 import { getMatchStatus } from "@/utils/getMatchStatus";
+import MatchEvents from "@/components/MatchEvents/MatchEvents";
+import MatchScoreCard from "@/components/MatchScoreCard/MatchScoreCard";
 
 export default async function ScorePage({
   params,
@@ -190,6 +191,8 @@ export default async function ScorePage({
         score={match.awayTeamScore ?? 0}
         matchId={matchId}
       />
+
+      <MatchEvents matchId={matchId} />
     </div>
   );
 }
