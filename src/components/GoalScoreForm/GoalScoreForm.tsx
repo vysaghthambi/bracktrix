@@ -14,7 +14,15 @@ type GoalScoreFormProps = {
   scoredTeamLineup: MatchLineup[];
   concededTeamLineup: MatchLineup[];
   goalTypes: GoalType[];
-  onSubmit: (data: GoalScoreSchemaType) => void;
+  matchId: string;
+  tournamentId: string;
+  isHomeTeam: boolean;
+  onSubmit: (
+    data: GoalScoreSchemaType,
+    matchId: string,
+    tournamentId: string,
+    isHomeTeam: boolean
+  ) => void;
 };
 
 export default function GoalScoreForm({
@@ -22,6 +30,9 @@ export default function GoalScoreForm({
   scoredTeamLineup,
   concededTeamLineup,
   goalTypes,
+  matchId,
+  tournamentId,
+  isHomeTeam,
   onSubmit,
 }: Readonly<GoalScoreFormProps>) {
   const methods = useForm<GoalScoreSchemaType>({
@@ -33,7 +44,11 @@ export default function GoalScoreForm({
 
   const isOwnGoal = watch("isOwnGoal");
 
-  const playerOptions = isOwnGoal ? scoredTeamLineup : concededTeamLineup;
+  const playerOptions = isOwnGoal ? concededTeamLineup : scoredTeamLineup;
+
+  const handleFormSubmit = (data: GoalScoreSchemaType) => {
+    onSubmit(data, matchId, tournamentId, isHomeTeam);
+  };
 
   const onError = (errors: FieldErrors<GoalScoreSchemaType>) => {
     console.error(errors);
@@ -43,7 +58,7 @@ export default function GoalScoreForm({
     <div>
       <h6>GoalScoreForm</h6>
       <FormProvider {...methods}>
-        <form onSubmit={handleSubmit(onSubmit, onError)}>
+        <form onSubmit={handleSubmit(handleFormSubmit, onError)}>
           <SwitchFormInput name="isOwnGoal" label="Is Own Goal" />
           <TextFieldFormInput name="minute" label="Minute" />
           <AutocompleteFormInput

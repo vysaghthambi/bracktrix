@@ -43,37 +43,45 @@ export default async function GoalPage({
     goalType: null!,
   };
 
-  const handleSubmit = async (data: GoalScoreSchemaType) => {
+  const isHomeTeam = teamId === match.homeTeamId;
+
+  const handleSubmit = async (
+    data: GoalScoreSchemaType,
+    matchId: string,
+    tournamentId: string,
+    isHomeTeam: boolean
+  ) => {
     "use server";
+
     try {
-      const isHomeTeam = teamId === match.homeTeamId;
-
-      await prisma.$transaction([
-        prisma.matchEvent.create({
-          data: {
-            matchId,
-            teamId: data.player.teamId,
-            tournamentId: match.tournamentId,
-            eventType: data.isOwnGoal ? "OWN_GOAL" : "GOAL",
-            minute: data.minute,
-            playerId: data.player.playerId,
-            assistPlayerId: data.assistPlayer?.id,
-            goalTypeCode: data.goalType?.code,
-          },
-        }),
-        prisma.match.update({
-          where: {
-            id: matchId,
-          },
-          data: {
-            ...(isHomeTeam
-              ? { homeTeamScore: { increment: 1 } }
-              : { awayTeamScore: { increment: 1 } }),
-          },
-        }),
-      ]);
-
-      redirect(`/match/${matchId}/score`);
+      await prisma
+        .$transaction([
+          prisma.matchEvent.create({
+            data: {
+              matchId,
+              teamId: data.player.teamId,
+              tournamentId,
+              eventType: data.isOwnGoal ? "OWN_GOAL" : "GOAL",
+              minute: data.minute,
+              playerId: data.player.playerId,
+              assistPlayerId: data.assistPlayer?.id,
+              goalTypeCode: data.goalType?.code,
+            },
+          }),
+          prisma.match.update({
+            where: {
+              id: matchId,
+            },
+            data: {
+              ...(isHomeTeam
+                ? { homeTeamScore: { increment: 1 } }
+                : { awayTeamScore: { increment: 1 } }),
+            },
+          }),
+        ])
+        .then(() => {
+          redirect(`/match/${matchId}/score`);
+        });
     } catch (error) {
       console.error(error);
       throw error;
@@ -86,6 +94,9 @@ export default async function GoalPage({
       scoredTeamLineup={scoredTeamLineup}
       concededTeamLineup={concededTeamLineup}
       goalTypes={goalTypes}
+      matchId={matchId}
+      tournamentId={match.tournamentId}
+      isHomeTeam={isHomeTeam}
       onSubmit={handleSubmit}
     />
   );
