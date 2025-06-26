@@ -6,7 +6,7 @@ import GoalScoreForm, {
 } from "@/components/GoalScoreForm/GoalScoreForm";
 import { GoalScoreSchemaType } from "@/schema/matchEvent";
 
-export default async function GoalEventPage({
+export default async function GoalEventEditPage({
   params,
 }: Readonly<{
   params: Promise<{ id: string; teamId: string; eventId: string }>;

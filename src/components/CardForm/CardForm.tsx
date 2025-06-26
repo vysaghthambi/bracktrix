@@ -8,25 +8,29 @@ import { cardSchema, CardSchemaType, cardTypes } from "@/schema/matchEvent";
 import TextFieldFormInput from "../FormInputs/TextFieldFormInput/TextFieldFormInput";
 import AutocompleteFormInput from "../FormInputs/AutocompleteFormInput/AutocompleteFormInput";
 
+export type SubmitContext = {
+  matchId?: string;
+  tournamentId?: string;
+  teamId?: string;
+  eventId?: string;
+};
+
 export default function CardForm({
   defaultValues,
   players,
   matchId,
   teamId,
   tournamentId,
+  eventId,
   onSubmit,
 }: Readonly<{
   defaultValues: CardSchemaType;
   players: MatchLineup[];
-  matchId: string;
-  teamId: string;
-  tournamentId: string;
-  onSubmit: (
-    data: CardSchemaType,
-    matchId: string,
-    teamId: string,
-    tournamentId: string
-  ) => void;
+  matchId?: string;
+  teamId?: string;
+  tournamentId?: string;
+  eventId?: string;
+  onSubmit: (data: CardSchemaType, context: SubmitContext) => Promise<void>;
 }>) {
   const methods = useForm<CardSchemaType>({
     defaultValues,
@@ -35,8 +39,8 @@ export default function CardForm({
 
   const { handleSubmit } = methods;
 
-  const handleFormSubmit = (data: CardSchemaType) => {
-    onSubmit(data, matchId, teamId, tournamentId);
+  const handleFormSubmit = async (data: CardSchemaType) => {
+    await onSubmit(data, { matchId, tournamentId, teamId, eventId });
   };
 
   const onError = (errors: FieldErrors<CardSchemaType>) => {
