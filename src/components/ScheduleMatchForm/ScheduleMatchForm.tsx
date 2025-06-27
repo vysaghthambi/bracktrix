@@ -58,7 +58,7 @@ export default function ScheduleMatchForm({
         ?.find((group) => group.id === selectedGroup.id)
         ?.groupTeams.map((groupTeam) => groupTeam.team) ?? []
     );
-  }, [selectedGroup]);
+  }, [selectedGroup, groups, teams, resetField]);
 
   const onSubmit = async (data: MatchSchemaType) => {
     const payload: MatchCreatePayload = {

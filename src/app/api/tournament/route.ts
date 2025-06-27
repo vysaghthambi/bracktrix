@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       substituteCount: body.substitutesCount,
       matchDuration: body.duration,
       type: body.tournamentType,
-      knockoutFormat: body.knockoutFormat,
+      knockoutLevel: body.knockoutFormat,
       createdById: session?.user.id,
       startDate: body.startDate,
       endDate: body.endDate,

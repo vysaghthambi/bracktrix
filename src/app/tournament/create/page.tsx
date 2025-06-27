@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import axios, { AxiosResponse } from "axios";
 import { Team, Tournament } from "@prisma/client";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { FormProvider, useForm } from "react-hook-form";
+import { FieldErrors, FormProvider, useForm } from "react-hook-form";
 
 import AutocompleteFormInput from "@/components/FormInputs/AutocompleteFormInput/AutocompleteFormInput";
 import DatePickerFormInput from "@/components/FormInputs/DatePickerFormInput/DatePickerFormInput";
@@ -56,13 +56,13 @@ export default function CreateTournament() {
       ...payload,
       teams: teams.map((team) => team.id),
       tournamentType: tournamentType.value!,
-      knockoutFormat: knockoutFormat?.value
+      knockoutFormat: knockoutFormat?.value,
     });
 
     router.push(`/tournament/${response.data.id}`);
   };
 
-  const onError = (error: any) => {
+  const onError = (error: FieldErrors<TournamentSchemaType>) => {
     console.error(error);
   };
 
@@ -126,17 +126,22 @@ export default function CreateTournament() {
             label="Tournament Type"
             options={tournamentTypes ?? []}
             getOptionLabel={(option) => option.label}
-            isOptionEqualToValue={(option, value) => option.value === value.value}
+            isOptionEqualToValue={(option, value) =>
+              option.value === value.value
+            }
             required
             fullWidth
           />
-          {(selectedTournamentType?.value === "KNOCKOUT" || selectedTournamentType?.value === "GROUP_KNOCKOUT") && (
+          {(selectedTournamentType?.value === "KNOCKOUT" ||
+            selectedTournamentType?.value === "GROUP_KNOCKOUT") && (
             <AutocompleteFormInput
               name="knockoutFormat"
               label="Knockout Format"
               options={knockoutFormats ?? []}
               getOptionLabel={(option) => option.label}
-              isOptionEqualToValue={(option, value) => option.value === value.value}
+              isOptionEqualToValue={(option, value) =>
+                option.value === value.value
+              }
               required
               fullWidth
             />

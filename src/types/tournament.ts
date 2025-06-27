@@ -1,5 +1,5 @@
 import { TournamentSchemaType } from "@/schema/tournament";
-import { KnockoutFormat, TournamentType } from "@prisma/client";
+import { KnockoutLevel, TournamentType } from "@prisma/client";
 
 export type TournamentCreatePayload = Omit<
   TournamentSchemaType,
@@ -7,5 +7,5 @@ export type TournamentCreatePayload = Omit<
 > & {
   teams: string[];
   tournamentType: TournamentType;
-  knockoutFormat?: KnockoutFormat;
+  knockoutFormat?: KnockoutLevel;
 };

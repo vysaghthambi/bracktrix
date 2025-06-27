@@ -1,4 +1,4 @@
-import { KnockoutFormat, TournamentType } from "@prisma/client";
+import { KnockoutLevel, TournamentType } from "@prisma/client";
 
 export const tournamentTypeEnums: TournamentType[] = [
   "LEAGUE",
@@ -12,14 +12,16 @@ export const tournamentTypes: { label: string; value: TournamentType }[] = [
   { label: "Group + Knockout", value: TournamentType.GROUP_KNOCKOUT },
 ];
 
-export const knockoutFormatEnums: KnockoutFormat[] = [
-  "ROUND_OF_16",
-  "ROUND_OF_8",
-  "ROUND_OF_4",
+export const knockoutFormatEnums: KnockoutLevel[] = [
+  KnockoutLevel.PRE_QUARTER_FINAL,
+  KnockoutLevel.QUARTER_FINAL,
+  KnockoutLevel.SEMI_FINAL,
+  KnockoutLevel.FINAL,
 ];
 
-export const knockoutFormats: { label: string; value: KnockoutFormat }[] = [
-  { label: "Round of 16", value: KnockoutFormat.ROUND_OF_16 },
-  { label: "Round of 8", value: KnockoutFormat.ROUND_OF_8 },
-  { label: "Round of 4", value: KnockoutFormat.ROUND_OF_4 },
+export const knockoutFormats: { label: string; value: KnockoutLevel }[] = [
+  { label: "Pre-Quarter Final", value: KnockoutLevel.PRE_QUARTER_FINAL },
+  { label: "Quarter Final", value: KnockoutLevel.QUARTER_FINAL },
+  { label: "Semi Final", value: KnockoutLevel.SEMI_FINAL },
+  { label: "Final", value: KnockoutLevel.FINAL },
 ];
