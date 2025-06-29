@@ -5,21 +5,40 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "next lint"
   },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@hookform/resolvers": "^5.0.1",
+    "@mui/material": "^7.1.0",
+    "@mui/x-date-pickers": "^8.3.0",
+    "@prisma/client": "^6.7.0",
+    "axios": "^1.9.0",
+    "dayjs": "^1.11.13",
+    "next": "15.3.2",
+    "next-auth": "^4.24.11",
+    "notistack": "^3.0.2",
     "react": "^19.0.0",
+    "react-aria": "^3.41.1",
     "react-dom": "^19.0.0",
-    "next": "15.3.2"
+    "react-hook-form": "^7.56.3",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
-    "@eslint/eslintrc": "^3"
+    "prisma": "6.8.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
   }
 }

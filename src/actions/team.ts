@@ -1,0 +1,50 @@
+"use server";
+
+import { prisma } from "@/lib/prisma";
+
+type CreateTeamPayload = {
+  name: string;
+  description: string;
+  createdBy: string;
+};
+
+export const createTeam = async ({
+  name,
+  description,
+  createdBy,
+}: CreateTeamPayload) => {
+  const team = await prisma.team.create({
+    data: {
+      name,
+      description,
+      createdById: createdBy,
+      teamMembers: {
+        create: {
+          userId: createdBy,
+          role: "ADMIN",
+          status: "ACCEPTED",
+        },
+      },
+    },
+  });
+
+  return team;
+};
+
+export const updateRequestStatus = async (
+  teamId: string,
+  userId: string,
+  status: "ACCEPTED" | "REJECTED"
+) => {
+  await prisma.teamMember.update({
+    where: {
+      userId_teamId: {
+        userId,
+        teamId,
+      },
+    },
+    data: {
+      status,
+    },
+  });
+};

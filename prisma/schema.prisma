@@ -1,0 +1,311 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  image        String?
+  jerseyNumber Int?
+  positionCode String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  position Position? @relation(fields: [positionCode], references: [code])
+
+  tournaments    Tournament[]   @relation("TournamentCreator")
+  mvpTournaments Tournament[]   @relation("TournamentMVP")
+  penaltyPlayers PenaltyEvent[] @relation("PenaltyPlayer")
+  penaltyGoalies PenaltyEvent[] @relation("PenaltyGoalie")
+
+  teams              Team[]
+  teamMembers        TeamMember[]
+  playerOfTheMatches Match[]
+  matchLineups       MatchLineup[]
+  matchEvents        MatchEvent[]  @relation("MatchEvent")
+  assistPlayers      MatchEvent[]  @relation("AssistPlayer")
+}
+
+model Position {
+  code  String @id
+  title String
+
+  users        User[]
+  matchLineups MatchLineup[]
+}
+
+model Team {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  image       String?
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdBy   User         @relation(fields: [createdById], references: [id])
+  teamMembers TeamMember[]
+
+  tournamentTeams TournamentTeam[]
+  groupTeams      GroupTeam[]
+  matchLineups    MatchLineup[]
+  matchEvents     MatchEvent[]
+  penaltyEvents   PenaltyEvent[]
+  homeMatches     Match[]          @relation("HomeTeam")
+  awayMatches     Match[]          @relation("AwayTeam")
+}
+
+enum TeamMemberRole {
+  ADMIN
+  MEMBER
+}
+
+enum TeamMemberStatus {
+  REQUESTED
+  ACCEPTED
+  REJECTED
+}
+
+model TeamMember {
+  userId    String
+  teamId    String
+  role      TeamMemberRole   @default(MEMBER)
+  status    TeamMemberStatus @default(REQUESTED)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  team Team @relation(fields: [teamId], references: [id])
+
+  @@id(name: "id", fields: [userId, teamId])
+  @@unique([userId, teamId])
+}
+
+enum TournamentType {
+  LEAGUE
+  KNOCKOUT
+  GROUP_KNOCKOUT
+}
+
+enum KnockoutLevel {
+  PRE_QUARTER_FINAL
+  QUARTER_FINAL
+  SEMI_FINAL
+  FINAL
+}
+
+model Tournament {
+  id              String         @id @default(cuid())
+  name            String         @unique
+  description     String?
+  image           String?
+  location        String
+  locationUrl     String
+  startDate       DateTime
+  endDate         DateTime
+  playerCount     Int
+  substituteCount Int
+  matchDuration   Int
+  type            TournamentType
+  knockoutLevel   KnockoutLevel?
+  createdById     String
+  mvpPlayerId     String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  createdBy User  @relation("TournamentCreator", fields: [createdById], references: [id])
+  mvpPlayer User? @relation("TournamentMVP", fields: [mvpPlayerId], references: [id])
+
+  tournamentTeams TournamentTeam[]
+  groups          Group[]
+  matches         Match[]
+  matchEvents     MatchEvent[]
+  penaltyEvents   PenaltyEvent[]
+}
+
+model TournamentTeam {
+  tournamentId String
+  teamId       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id])
+  team       Team       @relation(fields: [teamId], references: [id])
+
+  @@id(name: "id", fields: [tournamentId, teamId])
+  @@unique([tournamentId, teamId])
+}
+
+model Group {
+  id           String   @id @default(cuid())
+  name         String
+  tournamentId String
+  orderNumber  Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id])
+
+  groupTeams   GroupTeam[]
+  groupMatches Match[]
+
+  @@unique([tournamentId, name])
+}
+
+model GroupTeam {
+  groupId   String
+  teamId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  group Group @relation(fields: [groupId], references: [id])
+  team  Team  @relation(fields: [teamId], references: [id])
+
+  @@id(name: "id", fields: [groupId, teamId])
+  @@unique([groupId, teamId])
+}
+
+enum MatchStage {
+  GROUP
+  KNOCKOUT
+}
+
+enum MatchStatus {
+  SCHEDULED
+  ONGOING
+  COMPLETED
+}
+
+model Match {
+  id                     String         @id @default(cuid())
+  tournamentId           String
+  groupId                String?
+  title                  String
+  matchNumber            Int
+  homeTeamId             String
+  awayTeamId             String
+  homeTeamScore          Int            @default(0)
+  awayTeamScore          Int            @default(0)
+  wentToPenalty          Boolean        @default(false)
+  homeTeamPenaltyScore   Int            @default(0)
+  awayTeamPenaltyScore   Int            @default(0)
+  startTime              DateTime
+  duration               Int
+  firstHalfStartAt       DateTime?
+  firstHalfEndAt         DateTime?
+  secondHalfStartAt      DateTime?
+  secondHalfEndAt        DateTime?
+  extraFirstHalfStartAt  DateTime?
+  extraFirstHalfEndAt    DateTime?
+  extraSecondHalfStartAt DateTime?
+  extraSecondHalfEndAt   DateTime?
+  stage                  MatchStage
+  knockoutLevel          KnockoutLevel?
+  status                 MatchStatus
+  playerOfTheMatchId     String?
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+
+  tournament       Tournament @relation(fields: [tournamentId], references: [id])
+  playerOfTheMatch User?      @relation(fields: [playerOfTheMatchId], references: [id])
+  homeTeam         Team       @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeam         Team       @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  group            Group?     @relation(fields: [groupId], references: [id])
+
+  matchLineups MatchLineup[]
+  matchEvents  MatchEvent[]
+  PenaltyEvent PenaltyEvent[]
+}
+
+model MatchLineup {
+  matchId      String
+  playerId     String
+  teamId       String
+  isSubstitute Boolean  @default(false)
+  name         String
+  positionCode String
+  jerseyNumber Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  match    Match    @relation(fields: [matchId], references: [id])
+  player   User     @relation(fields: [playerId], references: [id])
+  team     Team     @relation(fields: [teamId], references: [id])
+  position Position @relation(fields: [positionCode], references: [code])
+
+  @@id(name: "id", fields: [matchId, playerId, teamId])
+  @@unique([matchId, playerId, teamId])
+}
+
+enum MatchEventType {
+  GOAL
+  OWN_GOAL
+  YELLOW_CARD
+  RED_CARD
+}
+
+model GoalType {
+  code  String @id
+  title String
+
+  matchEvents MatchEvent[]
+}
+
+model MatchEvent {
+  id             String         @id @default(cuid())
+  matchId        String
+  playerId       String
+  assistPlayerId String?
+  teamId         String
+  tournamentId   String
+  minute         Int
+  eventType      MatchEventType
+  goalTypeCode   String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  match        Match      @relation(fields: [matchId], references: [id])
+  player       User       @relation("MatchEvent", fields: [playerId], references: [id])
+  assistPlayer User?      @relation("AssistPlayer", fields: [assistPlayerId], references: [id])
+  team         Team       @relation(fields: [teamId], references: [id])
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  goalType     GoalType?  @relation(fields: [goalTypeCode], references: [code])
+}
+
+enum PenaltyStatus {
+  SCORED
+  MISSED
+  SAVED
+}
+
+model PenaltyEvent {
+  tournamentId String
+  matchId      String
+  playerId     String
+  teamId       String
+  goalieId     String
+  status       PenaltyStatus
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id])
+  match      Match      @relation(fields: [matchId], references: [id])
+  team       Team       @relation(fields: [teamId], references: [id])
+  player     User       @relation("PenaltyPlayer", fields: [playerId], references: [id])
+  goalie     User       @relation("PenaltyGoalie", fields: [goalieId], references: [id])
+
+  @@id(name: "id", fields: [matchId, playerId, teamId])
+  @@unique([matchId, playerId, teamId])
+}
